@@ -1,0 +1,13 @@
+{
+  "name": "Sovranly IP",
+  "description": "Sovereign intellectual property management with Zero Trust Architecture, blockchain-based rights management, and biometric consent flows.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ],
+  "permissions": [
+    {
+      "requirement": "Biometric face likeness capture requires explicit user consent for compliance with BIPA/GDPR.",
+      "type": "camera"
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function isValidAsset(data) {
+        return data.title is string && data.title.size() <= 100 &&
+               data.type is string && data.type.size() <= 100 &&
+               data.royalty is int && data.royalty >= 0 && data.royalty <= 100 &&
+               data.license is string && data.license.size() <= 100 &&
+               data.ownerAddress is string && data.ownerAddress.size() <= 42 &&
+               (!('isScarce' in data) || data.isScarce is bool) &&
+               (!('scarcityTier' in data) || (data.scarcityTier is string && data.scarcityTier.size() <= 50)) &&
+               (!('scarcityPrice' in data) || (data.scarcityPrice is number || data.scarcityPrice == null)) &&
+               (!('scarcityTxHash' in data) || (data.scarcityTxHash is string && data.scarcityTxHash.size() <= 128 || data.scarcityTxHash == null));
+    }
+
+    function isValidTransaction(data) {
+        return data.hash is string && data.hash.size() <= 128 &&
+               data.type is string && data.type.size() <= 50 &&
+               data.assetTitle is string && data.assetTitle.size() <= 100 &&
+               data.timestamp is timestamp;
+    }
+
+    function isValidAgreement(data) {
+        return data.assetId is string && data.assetId.size() <= 128 &&
+               data.assetTitle is string && data.assetTitle.size() <= 100 &&
+               data.royaltyRate is int && data.royaltyRate >= 0 && data.royaltyRate <= 100 &&
+               data.status is string && data.status.size() <= 20 &&
+               data.creatorEmail is string && data.creatorEmail.size() <= 100 &&
+               data.creatorWallet is string && data.creatorWallet.size() <= 42;
+    }
+
+    function isValidInquiry(data) {
+        return data.assetId is string && data.assetId.size() <= 128 &&
+               data.assetTitle is string && data.assetTitle.size() <= 100 &&
+               data.senderName is string && data.senderName.size() <= 100 &&
+               data.senderContact is string && data.senderContact.size() <= 150 &&
+               data.subject is string && data.subject.size() <= 150 &&
+               data.message is string && data.message.size() <= 2000 &&
+               data.recipientAddress is string && data.recipientAddress.size() <= 42 &&
+               data.createdAt is string;
+    }
+
+    function isValidFavorite(data) {
+        return data.userId is string && data.userId == request.auth.uid &&
+               data.assetId is string && data.assetId.size() <= 128 &&
+               data.createdAt is timestamp;
+    }
+
+    function isValidNotification(data) {
+        return data.userId is string && data.userId == request.auth.uid &&
+               data.type is string && data.type.size() <= 50 &&
+               data.title is string && data.title.size() <= 150 &&
+               data.description is string && data.description.size() <= 500 &&
+               data.read is bool &&
+               (data.createdAt is timestamp || data.createdAt is string) &&
+               (!('details' in data) || data.details is string);
+    }
+
+    function isValidBiometricAnchor(data) {
+        return data.keys().hasAll([
+                 'uid',
+                 'personaName',
+                 'tokenId',
+                 'contractAddress',
+                 'merkleRoot',
+                 'faceDescriptorHash',
+                 'faceLuminanceSignature',
+                 'voiceprintHash',
+                 'ipfsUri',
+                 'blockNumber',
+                 'poseCount',
+                 'consentAffirmedAt',
+                 'anchoredAt'
+               ]) &&
+               data.keys().hasOnly([
+                 'uid',
+                 'email',
+                 'personaName',
+                 'tokenId',
+                 'contractAddress',
+                 'merkleRoot',
+                 'faceDescriptorHash',
+                 'faceLuminanceSignature',
+                 'voiceprintHash',
+                 'ipfsUri',
+                 'blockNumber',
+                 'poseCount',
+                 'consentAffirmedAt',
+                 'anchoredAt',
+                 'lastVerifiedAt'
+               ]) &&
+               isValidId(data.uid) &&
+               data.uid == request.auth.uid &&
+               (!('email' in data) || (data.email is string && data.email.size() <= 150)) &&
+               data.personaName is string && data.personaName.size() >= 1 && data.personaName.size() <= 120 &&
+               data.tokenId is string && data.tokenId.size() >= 4 && data.tokenId.size() <= 64 &&
+               data.contractAddress is string && data.contractAddress.size() >= 4 && data.contractAddress.size() <= 64 &&
+               data.merkleRoot is string && data.merkleRoot.size() >= 10 && data.merkleRoot.size() <= 128 &&
+               data.faceDescriptorHash is string && data.faceDescriptorHash.size() >= 10 && data.faceDescriptorHash.size() <= 128 &&
+               data.faceLuminanceSignature is string && data.faceLuminanceSignature.size() >= 16 && data.faceLuminanceSignature.size() <= 256 &&
+               data.voiceprintHash is string && data.voiceprintHash.size() >= 10 && data.voiceprintHash.size() <= 128 &&
+               data.ipfsUri is string && data.ipfsUri.size() >= 7 && data.ipfsUri.size() <= 200 &&
+               data.blockNumber is int && data.blockNumber >= 0 &&
+               data.poseCount is int && data.poseCount >= 1 && data.poseCount <= 16 &&
+               data.consentAffirmedAt is string && data.consentAffirmedAt.size() >= 4 && data.consentAffirmedAt.size() <= 64 &&
+               data.anchoredAt is string && data.anchoredAt.size() >= 10 && data.anchoredAt.size() <= 64 &&
+               (!('lastVerifiedAt' in data) || (data.lastVerifiedAt is string && data.lastVerifiedAt.size() >= 10 && data.lastVerifiedAt.size() <= 64));
+    }
+
+    function isAssetOwner(doc) {
+      return !('creator' in doc) || doc.creator == request.auth.uid || doc.userId == request.auth.uid || ('creatorEmail' in doc && doc.creatorEmail == request.auth.token.email);
+    }
+
+    function isAgreementOwner(doc) {
+      return !('creator' in doc) || doc.creator == request.auth.uid || doc.userId == request.auth.uid || ('creatorEmail' in doc && doc.creatorEmail == request.auth.token.email) || ('licensorEmail' in doc && doc.licensorEmail == request.auth.token.email);
+    }
+
+    match /assets/{assetId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidAsset(request.resource.data) && isAssetOwner(request.resource.data);
+      allow update: if isSignedIn() && isValidAsset(request.resource.data) && isAssetOwner(resource.data);
+      allow delete: if isSignedIn() && isAssetOwner(resource.data);
+    }
+
+    match /agreements/{agreementId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidAgreement(request.resource.data) && isAgreementOwner(request.resource.data);
+      allow update: if isSignedIn() && isValidAgreement(request.resource.data) && isAgreementOwner(resource.data);
+      allow delete: if isSignedIn() && isAgreementOwner(resource.data);
+    }
+
+    match /agreements_vault/{vaultId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    match /permissions/{permissionId} {
+      allow read: if isSignedIn(); // Authenticated users can verify permissions
+      allow create: if isSignedIn() && request.resource.data.creator == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.creator == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.creator == request.auth.uid;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidTransaction(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    match /developer_keys/{userId} {
+      allow read, write: if isSignedIn() && userId == request.auth.uid;
+    }
+
+    match /inquiries/{inquiryId} {
+      allow read: if isSignedIn();
+      allow create: if isValidInquiry(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    match /favorites/{favoriteId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidFavorite(request.resource.data);
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /notifications/{notificationId} {
+      allow read, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidNotification(request.resource.data);
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && isValidNotification(request.resource.data) &&
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
+
+    match /folders/{folderId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /royalties/{royaltyId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /network_posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.authorName is string && request.resource.data.content is string && request.resource.data.content.size() <= 5000;
+      allow update, delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    match /biometric_anchors/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+      allow list: if false;
+      allow create: if isSignedIn() &&
+                    request.auth.token.email_verified == true &&
+                    isValidId(userId) &&
+                    userId == request.auth.uid &&
+                    isValidBiometricAnchor(request.resource.data);
+      allow update: if isSignedIn() &&
+                    request.auth.token.email_verified == true &&
+                    isValidId(userId) &&
+                    userId == request.auth.uid &&
+                    isValidBiometricAnchor(request.resource.data) &&
+                    request.resource.data.uid == resource.data.uid &&
+                    (
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastVerifiedAt']) ||
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                        'email',
+                        'personaName',
+                        'tokenId',
+                        'contractAddress',
+                        'merkleRoot',
+                        'faceDescriptorHash',
+                        'faceLuminanceSignature',
+                        'voiceprintHash',
+                        'ipfsUri',
+                        'blockNumber',
+                        'poseCount',
+                        'consentAffirmedAt',
+                        'anchoredAt',
+                        'lastVerifiedAt'
+                      ])
+                    );
+      allow delete: if isSignedIn() && isValidId(userId) && userId == request.auth.uid;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,329 @@
+'use client';
+
+import { Gauge, BarChart3, User, Users, FileText, LogOut, ShieldAlert, Scale, Sliders, Mail, X, Presentation, Rocket, Shield, Building2, Brain, ShieldCheck, Database, Globe, Zap, FolderOpen, Mic, Bot, Sparkles } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useAuth } from './auth/FirebaseProvider';
+import { SovranlyLogo } from '@/components/SovranlyLogo';
+import { motion, AnimatePresence } from 'motion/react';
+
+export default function Sidebar({ 
+  activePage, 
+  setActivePage, 
+  walletStatus,
+  isOpen,
+  onClose
+}: { 
+  activePage: number, 
+  setActivePage: (id: number) => void, 
+  walletStatus: string,
+  isOpen: boolean,
+  onClose: () => void 
+}) {
+  const { user, logout } = useAuth();
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop/Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[99]"
+          />
+
+          {/* Sidebar Drawer container */}
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed top-0 left-0 bottom-0 w-84 sm:w-88 md:w-92 bg-zinc-950 border-r border-zinc-900 flex flex-col h-screen z-[100] shadow-2xl transition-colors"
+          >
+            <div className="p-7 sm:p-8 border-b border-zinc-900 flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <SovranlyLogo size="sm" />
+                  <span className="font-bold tracking-tighter text-white text-xl uppercase font-mono">SOVRANLY IP</span>
+                </div>
+                <p className="text-emerald-400 text-[10px] uppercase tracking-widest font-mono">Sovereign IP Authority</p>
+              </div>
+              <button 
+                onClick={onClose}
+                className="p-2.5 -mr-2 rounded-xl text-zinc-500 hover:text-white hover:bg-zinc-900 transition-all focus:outline-none cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X className="w-4 h-4 text-cyan-400" />
+              </button>
+            </div>
+
+            <div className="flex-1 px-5 py-6 space-y-7 overflow-y-auto custom-scrollbar">
+
+              {/* Main Hub */}
+              <div className="space-y-1.5">
+                <button 
+                  onClick={() => { setActivePage(0); onClose(); }}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${activePage === 0 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Gauge className="w-4 h-4 text-cyan-400 shrink-0" /> Command Center
+                </button>
+              </div>
+
+              {/* Special Flagship: Sovravly & Dedicated Engines */}
+              <div className="space-y-1.5">
+                <div className="px-4 pb-2 text-[10px] font-mono font-bold tracking-wider text-violet-400 uppercase flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                  Flagship Brother Ecosystem
+                </div>
+                
+                {/* 1. Sovravly Biometrics Vault */}
+                <button 
+                  onClick={() => { setActivePage(20); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 20 ? 'bg-violet-950/60 border border-violet-500 text-white shadow-lg shadow-violet-950/40' : 'text-zinc-300 hover:text-white hover:bg-violet-950/20'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Shield className="w-4 h-4 text-violet-400 shrink-0" />
+                    Sovravly Likeness Vault
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-violet-900/60 text-violet-300 border border-violet-700/50 font-bold">Brother App</span>
+                </button>
+
+                {/* 2. Royalty Spider Agreement Engine */}
+                <button 
+                  onClick={() => { setActivePage(21); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 21 ? 'bg-teal-950/60 border border-teal-500 text-white shadow-lg shadow-teal-950/40' : 'text-zinc-300 hover:text-white hover:bg-teal-950/20'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Sliders className="w-4 h-4 text-teal-400 shrink-0" />
+                    Royalty Spider Engine
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-teal-900/60 text-teal-300 border border-teal-700/50 font-bold">Non-AI Spider</span>
+                </button>
+
+                {/* 3. Dedicated AI Intelligence Hub (SAM AI) */}
+                <button 
+                  onClick={() => { setActivePage(22); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 22 ? 'bg-cyan-950/60 border border-cyan-500 text-white shadow-lg shadow-cyan-950/40' : 'text-zinc-300 hover:text-white hover:bg-cyan-950/20'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Brain className="w-4 h-4 text-cyan-400 shrink-0" />
+                    AI Intelligence Center
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-900/60 text-cyan-300 border border-cyan-700/50 font-bold">SAM AI</span>
+                </button>
+              </div>
+
+              {/* Category 1: Core Creator Workflow */}
+              <div className="space-y-1.5">
+                <div className="px-4 pb-2 text-[10px] font-mono font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                  Core Creator Workflow
+                </div>
+                <button 
+                  onClick={() => { setActivePage(2); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 2 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <FolderOpen className="w-4 h-4 text-emerald-400 shrink-0" />
+                    1. Decentralized Vaults
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-bold">Vaults</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage(14); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 14 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Zap className="w-4 h-4 text-amber-400 shrink-0" />
+                    2. Permissions Hub
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-amber-950/60 text-amber-400 border border-amber-800/40 font-bold">Quick</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage(4); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 4 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Scale className="w-4 h-4 text-cyan-400 shrink-0" />
+                    3. Licensing Compacts
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-400 border border-cyan-800/40 font-bold">Terms</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage(5); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 5 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Sliders className="w-4 h-4 text-teal-400 shrink-0" />
+                    4. Royalty Sandbox
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-teal-950/60 text-teal-400 border border-teal-800/40 font-bold">85/15</span>
+                </button>
+              </div>
+
+              {/* Category 2: Protection & Distribution */}
+              <div className="space-y-1.5">
+                <div className="px-4 pb-2 text-[10px] font-mono font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400"></span>
+                  Protection &amp; Tokenization
+                </div>
+                <button 
+                  onClick={() => { setActivePage(11); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 11 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Brain className="w-4 h-4 text-violet-400 shrink-0" /> AI Training Vault
+                </button>
+                <button 
+                  onClick={() => { setActivePage(12); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 12 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Database className="w-4 h-4 text-cyan-400 shrink-0" /> Sovereign Tokenizer
+                </button>
+                <button 
+                  onClick={() => { setActivePage(3); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 3 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <BarChart3 className="w-4 h-4 text-amber-400 shrink-0" /> Economics &amp; Analytics
+                </button>
+              </div>
+
+              {/* Category 3: Workspace & Collaboration */}
+              <div className="space-y-1.5">
+                <div className="px-4 pb-2 text-[10px] font-mono font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  Workspace &amp; Outreach
+                </div>
+                <button 
+                  onClick={() => { setActivePage(6); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 6 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Mail className="w-4 h-4 text-purple-400 shrink-0" /> Creator Inbox
+                </button>
+                <button 
+                  onClick={() => { setActivePage(13); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 13 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Users className="w-4 h-4 text-indigo-400 shrink-0" /> Creator Network
+                </button>
+                <button 
+                  onClick={() => { setActivePage(7); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 7 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Presentation className="w-4 h-4 text-orange-400 shrink-0" /> Pitch Deck Gateway
+                </button>
+                <button 
+                  onClick={() => { setActivePage(8); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 8 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Rocket className="w-4 h-4 text-rose-400 shrink-0" /> Launch Planner
+                </button>
+              </div>
+
+              {/* Category 4: Account & Authority */}
+              <div className="space-y-1.5">
+                <div className="px-4 pb-2 text-[10px] font-mono font-bold tracking-wider text-zinc-400 uppercase flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                  Account &amp; Platform
+                </div>
+                <button 
+                  onClick={() => { setActivePage(1); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 1 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <User className="w-4 h-4 text-zinc-300 shrink-0" /> Creator Profile
+                </button>
+                <button 
+                  onClick={() => { setActivePage(9); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 9 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" /> Tech Stack Ledger
+                </button>
+                <button 
+                  onClick={() => { setActivePage(15); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 15 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Globe className="w-4 h-4 text-emerald-400 shrink-0" /> Cloudflare Handshake
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-bold">Fix</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage(16); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 16 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-amber-400 shrink-0" /> Official IP Notices
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-amber-950/60 text-amber-400 border border-amber-800/40 font-bold">Owner</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage(17); onClose(); }}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 17 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Scale className="w-4 h-4 text-cyan-400 shrink-0" /> Compliance Center
+                  </span>
+                  <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-400 border border-cyan-800/40 font-bold">GDPR</span>
+                </button>
+                <button 
+                  onClick={() => { setActivePage(10); onClose(); }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-[13px] font-semibold transition-all cursor-pointer ${activePage === 10 ? 'bg-zinc-900 border border-zinc-800 text-white shadow-lg' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40'}`}
+                >
+                  <Building2 className="w-4 h-4 text-amber-400 shrink-0" /> About Platform
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-zinc-900 space-y-4">
+              {user && (
+                <div className="bg-zinc-900/40 rounded-2xl p-4 border border-zinc-800/80 space-y-3">
+                  <div className="flex items-center gap-3">
+                    {user.photoURL ? (
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden border border-zinc-700">
+                        <Image 
+                          src={user.photoURL} 
+                          alt={user.displayName || 'User'} 
+                          fill 
+                          className="object-cover" 
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-cyan-950/50 border border-cyan-800/50 text-cyan-400 flex items-center justify-center text-xs font-bold">
+                        {user.displayName ? user.displayName.slice(0, 2).toUpperCase() : 'US'}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-white truncate leading-none mb-1">
+                        {user.displayName || 'Authorized Agent'}
+                      </p>
+                      <p className="text-[10px] text-zinc-500 truncate">
+                        {user.email || 'authenticated'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => { logout(); onClose(); }}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-zinc-950 hover:bg-red-950/20 hover:text-red-400 hover:border-red-500/20 text-zinc-400 text-xs font-bold border border-zinc-800/80 rounded-xl transition-all cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Terminate Session
+                  </button>
+                </div>
+              )}
+
+              <div className="bg-zinc-905 rounded-2xl p-4 border border-zinc-850/60 flex flex-col gap-1">
+                <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1 font-black flex items-center gap-1.5 font-mono">
+                  <ShieldAlert className="w-3 h-3 text-cyan-400" /> Wallet Identity
+                </p>
+                <p className="text-xs font-mono text-cyan-400 truncate">{walletStatus === 'Disconnected' ? 'Disconnected' : walletStatus}</p>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
